@@ -17,7 +17,7 @@ from pprint import pformat
 from docopt import docopt
 from pathlib import Path
 from tqdm import tqdm
-import numpy as np
+
 import json
 import pandas as pd
 import sklearn
