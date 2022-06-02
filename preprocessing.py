@@ -69,20 +69,21 @@ def surgery_process(df):
 
 
 def er_pr_preprocess(cell_data):
-    """
-    # TODO document
-    """
     cell_data = cell_data.lower()
-    if cell_data[:2] == "<1": # "<1" or "<1%"
+    if len(cell_data) == 0:
+        return 0
+    if len(cell_data) == 1:
+        return # TODO cange
+    elif cell_data[:2] == "<1": # "<1" or "<1%"
         return 0.005
     if cell_data[:2] == ">7": # ">75%"
         return 0.8
     elif cell_data[:2] == "po":
         return # TODO change
         # check if weak
-            # if so check if there is percenatage
+            # if so, check if there is percenatage
 
-    #### TODO CONTINUE!!!!
+    #### TODO continue if we have time so we can use the er-diagnosis & pr-diagnosis instead of dropping them
 
 
 def names_and_age_process(df):
@@ -117,9 +118,10 @@ def diagnoses_process(df):
     df[DIAGNOSIS] = df[DIAGNOSIS].astype('category')
     df[DIAGNOSIS] = pd.factorize(df[DIAGNOSIS])[0] + 1
 
-    # Markers (er & pr)
-    for marker in TUMOR_MARKERS_DIAGNOSIS:
-        df[marker] = df[marker].astype(str).apply(er_pr_preprocess)
+    # # Markers (er & pr) - can be returned from comment only if we had time
+    #                   #   finishing the er_pr_preprocess function
+    # for marker in TUMOR_MARKERS_DIAGNOSIS:
+    #     df[marker] = df[marker].astype(str).apply(er_pr_preprocess)
 
 
 def load_data(file_path, labels_path=None, is_train=False): # TODO use the is_train flag to train only on rellevant data
