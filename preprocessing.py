@@ -146,7 +146,8 @@ def load_data_question_1(file_path, labels_path=None,
     basic_stage_process(df)
     diagnoses_process(df)
     nodes_process(df)
-    labels = df[LABELS_COL]
+    labels = pd.DataFrame()
+    labels[LABELS_COL] = df[LABELS_COL]
     df.drop(columns=LABELS_COL, inplace=True)
     return df, labels
 

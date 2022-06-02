@@ -3,13 +3,13 @@ import numpy as np
 import pandas as pd
 #import sklearn
 
-from preprocessing import load_data, DATA_PATH, TRAIN_FILE, LABELS_FILE_1
+from preprocessing import load_data_question_1, DATA_PATH, TRAIN_FILE, LABELS_FILE_1, LABELS_COL
 from utils import split_train_test
 
 GOLD_FILE = "gold.csv"
 PRED_FILE = "pred.csv"
 
-LABEL_TITLE = "אבחנה-Location of distal metastases"
+LABEL_TITLE = LABELS_COL
 LABEL_OPTIONS = ['BON - Bones', 'LYM - Lymph nodes', 'HEP - Hepatic',
                  'PUL - Pulmonary', 'PLE - Pleura', 'SKI - Skin',
                  'OTH - Other', 'BRA - Brain', 'MAR - Bone Marrow',
@@ -35,8 +35,12 @@ def labels_to_categorical(train_y):
 
 
 def main():
-    X, y = load_data(path.join(DATA_PATH, TRAIN_FILE), path.join(DATA_PATH, LABELS_FILE_1))
-    train_X, train_y, test_X, test_y = split_train_test(X, y)
+    X, y = load_data_question_1(path.join(DATA_PATH, TRAIN_FILE), path.join(DATA_PATH, LABELS_FILE_1))
+    #train_X, train_y, test_X, test_y = split_train_test(X, y)
+    train_X =X
+    train_y=y
+    test_X=X
+    test_y=y
     train_y_as_dummies = labels_to_categorical(train_y)
 
     results_df = pd.DataFrame()
