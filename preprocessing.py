@@ -32,6 +32,9 @@ STAGE_DICT = {"stage0": 0, "stage1": 1, "LA": 1, "stage1a": 1,
               "stage 3b": 6, "stage 3c": 7, "stage 4": 8,
               "Not yet Established": 0, None: 0}
 
+TUMOR_MARKERS_DIAGNOSIS = ["אבחנה-er", "אבחנה-pr"]
+
+
 
 def surgery_process(df):
     # Surgery sum
@@ -43,6 +46,14 @@ def surgery_process(df):
         df[col] = (df[TODAY] - pd.to_datetime(df[col], dayfirst=True)).dt.days
     df[SUR_SINCE_LAST] = df[SUR_DATES_COL].max(axis=1)
     df.drop(columns=SUR_DATES_COL, inplace=True)
+
+
+
+def er_pr_preprocess(cell_data):
+    """
+    # TODO document
+    """
+
 
 
 def names_and_age_process(df):
@@ -71,17 +82,17 @@ def load_data(file_path):
 
     # Diagnosis date
     df[DIAGNOSIS_DATE] = pd.to_datetime(df[DIAGNOSIS_DATE])
-
     df['Difference'] = (df[TODAY] - df[DIAGNOSIS_DATE]).dt.days
+
+    # Markers (er & pr)
+    for marker in TUMOR_MARKERS_DIAGNOSIS:
+        df[marker] = df[marker].astype(str).apply(er_pr_preprocess)
 
     return df
 
 
 def main():
     data = load_data(path.join(DATA_PATH, TRAIN_FILE))
-
-
-
 
 
 if __name__ == "__main__":
