@@ -47,7 +47,7 @@ STAGE = "אבחנה-Stage"
 STAGE_DICT = {"Stage0": 0, "Stage0is": 0, "Stage0a": 0, "Stage1": 1, "LA": 1, "Stage1a": 1,
               "Stage1b": 2, "Stage1c": 3, "Stage2": 4, "Stage2a": 4, "Stage2b": 5, "Stage3": 6, "Stage3a": 6,
               "Stage 3a": 6, "Stage 3b": 7, "Stage3b": 7, "Stage 3c": 8, "Stage3c": 8,
-              "Stage 4": 9, "Stage4": 9, "Not yet Established": 0, None: 0}
+              "Stage 4": 9, "Stage4": 9, "Not yet Established": 0}
 
 SIDE = "אבחנה-Side"
 SIDE_DICT = {"ימין": 1, "שמאל": 1, "דו צדדי": 2}
@@ -146,6 +146,7 @@ def nan_process(df):
     df[POS_NODES].fillna(0, inplace=True)
     df[EXAM_NODES].fillna(0, inplace=True)
     df[SIDE].fillna(0, inplace=True)
+    df[STAGE].fillna(0, inplace=True)
     df[SUR_SINCE_LAST].fillna(0, inplace=True)
     df.replace([np.inf, -np.inf], 0, inplace=True)
 
