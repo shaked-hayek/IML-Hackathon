@@ -7,6 +7,7 @@ import plotly.io as pio
 
 DATA_PATH = "Mission 2 - Breast Cancer"
 TRAIN_FILE = "train.feats.csv"
+TEST_FILE = "test.feats.csv"
 LABELS_FILE_1 = "train.labels.0.csv"
 LABELS_FILE_2 = "train.labels.1.csv"
 

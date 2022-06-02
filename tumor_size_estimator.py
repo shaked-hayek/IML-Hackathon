@@ -1,27 +1,41 @@
 from os import path
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor, \
-    AdaBoostRegressor
-from preprocessing import load_data_question_2, DATA_PATH, TRAIN_FILE, LABELS_FILE_2
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import Ridge, Lasso
 
-LABEL_TITLE = "Tumor Size"  # TODO check the right label header
-PRED_FILE = "prediction.csv"  # TODO make sure it doesn't overrun the other part's predictions!
-# TODO also address the gold part...
+from utils import split_train_test
 
-def estimate_tumor_size(train_X, train_y, test_X):
-    ada = AdaBoostRegressor()
+from preprocessing import load_data_question_2, DATA_PATH, TRAIN_FILE, LABELS_FILE_2, TEST_FILE
+
+LABELS = "labels"
+
+LABEL_TITLE = "Tumor Size"
+PRED_FILE = "prediction.csv"
+
+def estimate_tumor_size(train_X, train_y, test_X, alpha=1.0):
+
+    ada = Ridge(alpha=alpha)
     ada.fit(train_X, train_y)
+
     pred = ada.predict(test_X)
     return pred
 
 
 def main():
     X, y = load_data_question_2(path.join(DATA_PATH, TRAIN_FILE), path.join(DATA_PATH, LABELS_FILE_2))
-    test_X, _ = load_data_question_2(path.join(DATA_PATH, "test.feats.csv"))
-    predictions = estimate_tumor_size(X, y, test_X)
 
-    pd.DataFrame(predictions).to_csv(PRED_FILE)
+    train_X, train_y, test_X, test_y = split_train_test(X, y)
+    test_X, _ = load_data_question_2(path.join(DATA_PATH, TEST_FILE))
+    predictions = estimate_tumor_size(train_X, train_y, test_X, alpha=0.05)
+
+
+    pd.DataFrame(predictions).rename(columns={0: LABELS}).to_csv(PRED_FILE, index=False)
+
+
+
+
+
 
 if __name__ == "__main__":
     main()
