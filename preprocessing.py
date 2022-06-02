@@ -23,8 +23,17 @@ PATHOLOGICAL_STAGE = "p - Pathological"
 RECCURENT_STAGE = "r - Reccurent"
 NULL = "Null"
 DIAGNOSIS_DATE = "אבחנה-Diagnosis date"
-NUM_OF_DAYS_SINCE_DIAGNOSIS = "Number of dayes"
+NUM_OF_DAYS_SINCE_DIAGNOSIS = "Number of days"
+TODAY = "today"
+
+STAGE = "אבחנה-Stage"
+STAGE_DICT = {"stage0": 0, "stage1": 1, "LA": 1, "stage1a": 1,
+              "stage1b": 2, "stage2a": 3, "stage2b": 4, "stage 3a": 5,
+              "stage 3b": 6, "stage 3c": 7, "stage 4": 8,
+              "Not yet Established": 0, None: 0}
+
 TUMOR_MARKERS_DIAGNOSIS = ["אבחנה-er", "אבחנה-pr"]
+
 
 
 def surgery_process(df):
@@ -32,11 +41,12 @@ def surgery_process(df):
     df[SUR_SUM_COL].replace({None: "0"}, inplace=True)
 
     # Dates
-    # for col in SUR_DATES_COL:
-    #     df[col] = pd.to_datetime(df[col])
-    #     #df[col].replace({None: "0"}, inplace=True)
-    # df[SUR_SINCE_LAST] = df[SUR_DATES_COL].max(axis=1)
-    # print(df[SUR_SINCE_LAST])
+    for col in SUR_DATES_COL:
+        df[col].replace({"Unknown": None}, inplace=True)
+        df[col] = (df[TODAY] - pd.to_datetime(df[col], dayfirst=True)).dt.days
+    df[SUR_SINCE_LAST] = df[SUR_DATES_COL].max(axis=1)
+    df.drop(columns=SUR_DATES_COL, inplace=True)
+
 
 
 def er_pr_preprocess(cell_data):
@@ -70,8 +80,8 @@ def names_and_age_process(df):
 
 
 def load_data(file_path):
-    df = pd.read_csv(file_path, dtype='unicode', parse_dates=DATES_COLS, dayfirst=True)
-    df['today'] = pd.to_datetime("today")
+    df = pd.read_csv(file_path, dtype='unicode')
+    df[TODAY] = pd.to_datetime(TODAY)
     surgery_process(df)
 
     # Basic Stage
@@ -79,22 +89,23 @@ def load_data(file_path):
     df[BASIC_STAGE] = df[BASIC_STAGE].replace([PATHOLOGICAL_STAGE], 2)
     df[BASIC_STAGE] = df[BASIC_STAGE].replace([RECCURENT_STAGE], 3)
     df[BASIC_STAGE] = df[BASIC_STAGE].replace([NULL], 0)
+
+    # Stage
+    df[STAGE].replace(STAGE_DICT, inplace=True)
+
     # Diagnosis date
     df[DIAGNOSIS_DATE] = pd.to_datetime(df[DIAGNOSIS_DATE])
-    df['Difference'] = (df['today'] - df[DIAGNOSIS_DATE]).dt.days
+    df['Difference'] = (df[TODAY] - df[DIAGNOSIS_DATE]).dt.days
+
     # Markers (er & pr)
     for marker in TUMOR_MARKERS_DIAGNOSIS:
         df[marker] = df[marker].astype(str).apply(er_pr_preprocess)
-
 
     return df
 
 
 def main():
     data = load_data(path.join(DATA_PATH, TRAIN_FILE))
-
-
-
 
 
 if __name__ == "__main__":
