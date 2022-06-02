@@ -59,6 +59,7 @@ def er_pr_preprocess(cell_data):
     if cell_data[:2] == ">7": # ">75%"
         return 0.8
     elif cell_data[:2] == "po":
+        return # TODO change
         # check if weak
             # if so check if there is percenatage
 
@@ -79,7 +80,7 @@ def names_and_age_process(df):
     df[AGE] = df[AGE].astype(int)
 
 
-def load_data(file_path):
+def load_data(file_path, is_train=False): # TODO use the is_train flag to train only on rellevant data
     df = pd.read_csv(file_path, dtype='unicode')
     df[TODAY] = pd.to_datetime(TODAY)
     surgery_process(df)
@@ -101,7 +102,7 @@ def load_data(file_path):
     for marker in TUMOR_MARKERS_DIAGNOSIS:
         df[marker] = df[marker].astype(str).apply(er_pr_preprocess)
 
-    return df
+    return df  # TODO if is_train then return also labels!!!!
 
 
 def main():
