@@ -47,11 +47,9 @@ def main():
 
     # Write results to CSV
     with open(PRED_FILE, "w") as f:
-        f.write(LABEL_TITLE + "\n")
         f.write("\n".join([str(x) for x in pred_output]))
 
     with open(GOLD_FILE, "w") as f:
-        f.write(LABEL_TITLE + "\n")
         f.write("\n".join(list(test_y[LABEL_TITLE])))
 
     # To test run:
