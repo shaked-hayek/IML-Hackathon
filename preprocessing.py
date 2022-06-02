@@ -7,6 +7,7 @@ import plotly.io as pio
 
 DATA_PATH = "Mission 2 - Breast Cancer"
 TRAIN_FILE = "train.feats.csv"
+LABELS_FILE_1 = "train.labels.0.csv"
 
 DATES_COLS = ["אבחנה-Diagnosis date", "אבחנה-Surgery date1",
               "אבחנה-Surgery date2", "אבחנה-Surgery date3"]
@@ -23,6 +24,18 @@ PATHOLOGICAL_STAGE = "p - Pathological"
 RECCURENT_STAGE = "r - Reccurent"
 NULL = "Null"
 DIAGNOSIS_DATE = "אבחנה-Diagnosis date"
+NUM_OF_DAYS_SINCE_DIAGNOSIS = "Number of days since diagnosed"
+DIAGNOSIS = "אבחנה-Histological diagnosis"
+LABELS_COL = "labels"
+
+DROP = [FORM_NAME, USER_NAME," Hospital", "אבחנה-Her2", "אבחנה-Histological diagnosis", "אבחנה-Histopatological degree"
+        , "אבחנה-Ivi -Lymphovascular invasion", "אבחנה-KI67 protein", "אבחנה-Lymphatic penetration",
+        "אבחנה-M -metastases mark (TNM)", "אבחנה-Margin Type", "אבחנה-N -lymph nodes mark (TNM)",
+        "אבחנה-Side", "אבחנה-Surgery name1", "אבחנה-Surgery name2", "אבחנה-Surgery name3",
+        "אבחנה-T -Tumor mark (TNM)", "אבחנה-Tumor depth", "אבחנה-Tumor width", "surgery before or after-Actual activity",
+        "surgery before or after-Activity date"
+        ]
+
 NUM_OF_DAYS_SINCE_DIAGNOSIS = "Number of days"
 TODAY = "today"
 
@@ -69,10 +82,6 @@ def er_pr_preprocess(cell_data):
     #### TODO CONTINUE!!!!
 
 
-
-
-
-
 def names_and_age_process(df):
     # Form Name
     df[FORM_NAME] = df[FORM_NAME].astype('category')
@@ -80,15 +89,10 @@ def names_and_age_process(df):
     # User Name
     df[USER_NAME] = (df[USER_NAME].str.split("_").str[0]).astype(int)
     # Age
-    df[AGE] = df[AGE].astype(int)
+    df[AGE] = df[AGE].astype(float).round().astype(int)
 
 
-def load_data(file_path, is_train=False): # TODO use the is_train flag to train only on rellevant data
-    df = pd.read_csv(file_path, dtype='unicode')
-    df[TODAY] = pd.to_datetime(TODAY)
-    surgery_process(df)
-
-    # Basic Stage
+def basic_stage_process(df):
     df[BASIC_STAGE] = df[BASIC_STAGE].replace([CLINICAL_STAGE], 1)
     df[BASIC_STAGE] = df[BASIC_STAGE].replace([PATHOLOGICAL_STAGE], 2)
     df[BASIC_STAGE] = df[BASIC_STAGE].replace([RECCURENT_STAGE], 3)
@@ -100,19 +104,39 @@ def load_data(file_path, is_train=False): # TODO use the is_train flag to train 
     # Side
     df[SIDE].replace(SIDE_DICT, inplace=True)
 
-    # Diagnosis date
+
+def diagnoses_process(df):
+    # date
     df[DIAGNOSIS_DATE] = pd.to_datetime(df[DIAGNOSIS_DATE])
+    df[NUM_OF_DAYS_SINCE_DIAGNOSIS] = (df['today'] - df[DIAGNOSIS_DATE]).dt.days
+    df.drop(columns=DIAGNOSIS_DATE, inplace=True)
+    # diagnosis
+    df[DIAGNOSIS] = df[DIAGNOSIS].astype('category')
+    df[DIAGNOSIS] = pd.factorize(df[DIAGNOSIS])[0] + 1
     df['Difference'] = (df[TODAY] - df[DIAGNOSIS_DATE]).dt.days
 
     # Markers (er & pr)
     for marker in TUMOR_MARKERS_DIAGNOSIS:
         df[marker] = df[marker].astype(str).apply(er_pr_preprocess)
 
-    return df  # TODO if is_train then return also labels!!!!
+
+def load_data(file_path, labels_path=None, is_train=False): # TODO use the is_train flag to train only on rellevant data
+    df = pd.read_csv(file_path, dtype='unicode', parse_dates=DATES_COLS, dayfirst=True)
+    if (labels_path):
+        labels = pd.read_csv(labels_path, dtype='unicode')
+        df[LABELS_COL] = labels
+    df.drop(columns=DROP, inplace=True)
+    df[TODAY] = pd.to_datetime(TODAY)
+    surgery_process(df)
+    names_and_age_process(df)
+    basic_stage_process(df)
+    diagnoses_process(df)
+
+    return (df,df)  # TODO if is_train then return also labels!!!!
 
 
 def main():
-    data = load_data(path.join(DATA_PATH, TRAIN_FILE))
+    data_1, data_2 = load_data(path.join(DATA_PATH, TRAIN_FILE), LABELS_FILE_1)
 
 
 if __name__ == "__main__":
