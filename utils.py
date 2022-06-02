@@ -36,7 +36,7 @@ def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .7
     all_index = list(X.index.values)
     n_samples = X.shape[0]
     train_samples_n = math.ceil(train_proportion * n_samples)
-    train_index = np.random.choice(all_index, size=train_samples_n, replace=False)
+    train_index = all_index[:train_samples_n]
     test_index = list(set(all_index) - set(train_index))
 
     train_X = X.drop(index=test_index)
