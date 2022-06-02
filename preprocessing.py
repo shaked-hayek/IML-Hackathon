@@ -28,11 +28,13 @@ DIAGNOSIS_DATE = "אבחנה-Diagnosis date"
 NUM_OF_DAYS_SINCE_DIAGNOSIS = "Number of days since diagnosed"
 DIAGNOSIS = "אבחנה-Histological diagnosis"
 LABELS_COL = "labels"
+POS_NODES = "אבחנה-Positive nodes"
+EXAM_NODES = "אבחנה-Nodes exam"
 
-DROP = [FORM_NAME, USER_NAME," Hospital", "אבחנה-Her2", "אבחנה-Histological diagnosis", "אבחנה-Histopatological degree"
+DROP = [" Hospital", "אבחנה-Her2", "אבחנה-Histopatological degree"
         , "אבחנה-Ivi -Lymphovascular invasion", "אבחנה-KI67 protein", "אבחנה-Lymphatic penetration",
-        "אבחנה-M -metastases mark (TNM)", "אבחנה-Margin Type", "אבחנה-N -lymph nodes mark (TNM)",
-        "אבחנה-Side", "אבחנה-Surgery name1", "אבחנה-Surgery name2", "אבחנה-Surgery name3",
+        "אבחנה-M -metastases mark (TNM)", "אבחנה-Margin Type", "אבחנה-N -lymph nodes mark (TNM)", "אבחנה-Surgery name1",
+        "אבחנה-Surgery name2", "אבחנה-Surgery name3",
         "אבחנה-T -Tumor mark (TNM)", "אבחנה-Tumor depth", "אבחנה-Tumor width", "surgery before or after-Actual activity",
         "surgery before or after-Activity date"
         ]
@@ -109,12 +111,11 @@ def basic_stage_process(df):
 def diagnoses_process(df):
     # date
     df[DIAGNOSIS_DATE] = pd.to_datetime(df[DIAGNOSIS_DATE])
-    df[NUM_OF_DAYS_SINCE_DIAGNOSIS] = (df['today'] - df[DIAGNOSIS_DATE]).dt.days
+    df[NUM_OF_DAYS_SINCE_DIAGNOSIS] = (df[TODAY] - df[DIAGNOSIS_DATE]).dt.days
     df.drop(columns=DIAGNOSIS_DATE, inplace=True)
     # diagnosis
     df[DIAGNOSIS] = df[DIAGNOSIS].astype('category')
     df[DIAGNOSIS] = pd.factorize(df[DIAGNOSIS])[0] + 1
-    df['Difference'] = (df[TODAY] - df[DIAGNOSIS_DATE]).dt.days
 
     # Markers (er & pr)
     for marker in TUMOR_MARKERS_DIAGNOSIS:
@@ -122,7 +123,7 @@ def diagnoses_process(df):
 
 
 def load_data(file_path, labels_path=None, is_train=False): # TODO use the is_train flag to train only on rellevant data
-    df = pd.read_csv(file_path, dtype='unicode', parse_dates=DATES_COLS, dayfirst=True)
+    df = pd.read_csv(file_path, dtype='unicode')
     if (labels_path):
         labels = pd.read_csv(labels_path, dtype='unicode')
         df[LABELS_COL] = labels
@@ -132,12 +133,19 @@ def load_data(file_path, labels_path=None, is_train=False): # TODO use the is_tr
     names_and_age_process(df)
     basic_stage_process(df)
     diagnoses_process(df)
+    # Ratio between the amount of vertices tested versus the amount of positives
+    df[EXAM_NODES].replace({None: "0"}, inplace=True)
+    df[POS_NODES].replace({None: "0"}, inplace=True)
+    df[EXAM_NODES] = df[EXAM_NODES].astype(float)
+    df[POS_NODES] = df[POS_NODES].astype(float)
+    df1 = df
+    df1[EXAM_NODES] = df1[POS_NODES] / df1[EXAM_NODES]
 
     return (df,df)  # TODO if is_train then return also labels!!!!
 
 
 def main():
-    data_1, data_2 = load_data(path.join(DATA_PATH, TRAIN_FILE), LABELS_FILE_1)
+    data_1, data_2 = load_data(path.join(DATA_PATH, TRAIN_FILE), path.join(DATA_PATH, LABELS_FILE_1))
 
 
 if __name__ == "__main__":
