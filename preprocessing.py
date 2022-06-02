@@ -14,6 +14,16 @@ SUR_SUM_COL = "אבחנה-Surgery sum"
 SUR_DATES_COL = ["אבחנה-Surgery date1", "אבחנה-Surgery date2", "אבחנה-Surgery date3"]
 SUR_SINCE_LAST = "Time since last surgery"
 
+FORM_NAME = ' Form Name'
+USER_NAME = "User Name"
+AGE = "אבחנה-Age"
+BASIC_STAGE = "אבחנה-Basic stage"
+CLINICAL_STAGE = "c - Clinical"
+PATHOLOGICAL_STAGE = "p - Pathological"
+RECCURENT_STAGE = "r - Reccurent"
+NULL = "Null"
+DIAGNOSIS_DATE = "אבחנה-Diagnosis date"
+
 
 def surgery_process(df):
     # Surgery sum
@@ -25,17 +35,6 @@ def surgery_process(df):
     #     #df[col].replace({None: "0"}, inplace=True)
     # df[SUR_SINCE_LAST] = df[SUR_DATES_COL].max(axis=1)
     # print(df[SUR_SINCE_LAST])
-
-FORM_NAME = ' Form Name'
-USER_NAME = "User Name"
-AGE = "אבחנה-Age"
-BASIC_STAGE = "אבחנה-Basic stage"
-CLINICAL_STAGE = "c - Clinical"
-PATHOLOGICAL_STAGE = "p - Pathological"
-RECCURENT_STAGE = "r - Reccurent"
-NULL = "Null"
-DIAGNOSIS_DATE = "אבחנה-Diagnosis date"
-
 
 
 def load_data(file_path):
