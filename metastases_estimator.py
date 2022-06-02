@@ -36,11 +36,7 @@ def labels_to_categorical(train_y):
 
 def main():
     X, y = load_data_question_1(path.join(DATA_PATH, TRAIN_FILE), path.join(DATA_PATH, LABELS_FILE_1))
-    #train_X, train_y, test_X, test_y = split_train_test(X, y)
-    train_X =X
-    train_y=y
-    test_X=X
-    test_y=y
+    train_X, train_y, test_X, test_y = split_train_test(X, y)
     train_y_as_dummies = labels_to_categorical(train_y)
 
     results_df = pd.DataFrame()
