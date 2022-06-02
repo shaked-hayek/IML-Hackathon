@@ -43,6 +43,19 @@ def er_pr_preprocess(cell_data):
     """
     # TODO document
     """
+    cell_data = cell_data.lower()
+    if cell_data[:2] == "<1": # "<1" or "<1%"
+        return 0.005
+    if cell_data[:2] == ">7": # ">75%"
+        return 0.8
+    elif cell_data[:2] == "po":
+        # check if weak
+            # if so check if there is percenatage
+
+    #### CONTINUE!!!!
+
+
+
 
 
 
