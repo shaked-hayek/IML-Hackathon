@@ -8,6 +8,7 @@ import plotly.io as pio
 DATA_PATH = "Mission 2 - Breast Cancer"
 TRAIN_FILE = "train.feats.csv"
 LABELS_FILE_1 = "train.labels.0.csv"
+LABELS_FILE_2 = "train.labels.1.csv"
 
 DATES_COLS = ["אבחנה-Diagnosis date", "אבחנה-Surgery date1",
               "אבחנה-Surgery date2", "אבחנה-Surgery date3"]
