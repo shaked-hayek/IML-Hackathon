@@ -26,7 +26,9 @@ def estimate_location(train_X, train_y, test_X):
 def create_output(df):
     cols = df.columns.values
     mask = df.gt(0.0).values
-    return [cols[x].tolist() for x in mask]
+    out = [cols[x].tolist() for x in mask]
+    out_df = pd.DataFrame([str(x) for x in out])
+    return out_df.rename(columns={0: LABEL_TITLE})
 
 
 def labels_to_categorical(train_y):
@@ -47,11 +49,8 @@ def main():
     pred_output = create_output(results_df)
 
     # Write results to CSV
-    with open(PRED_FILE, "w") as f:
-        f.write("\n".join([str(x) for x in pred_output]))
-
-    with open(GOLD_FILE, "w") as f:
-        f.write("\n".join(list(test_y[LABEL_TITLE])))
+    pred_output.to_csv(PRED_FILE, index=False)
+    test_y.to_csv(GOLD_FILE, index=False)
 
     # To test run:
     # python "Mission 2 - Breast Cancer/evaluate_part_0.py" --gold gold.csv --pred pred.csv
