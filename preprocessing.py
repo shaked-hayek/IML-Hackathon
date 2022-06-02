@@ -23,6 +23,7 @@ PATHOLOGICAL_STAGE = "p - Pathological"
 RECCURENT_STAGE = "r - Reccurent"
 NULL = "Null"
 DIAGNOSIS_DATE = "אבחנה-Diagnosis date"
+NUM_OF_DAYS_SINCE_DIAGNOSIS = "Number of dayes"
 TUMOR_MARKERS_DIAGNOSIS = ["אבחנה-er", "אבחנה-pr"]
 
 
@@ -45,10 +46,7 @@ def er_pr_preprocess(cell_data):
 
 
 
-def load_data(file_path):
-    df = pd.read_csv(file_path, dtype='unicode', parse_dates=DATES_COLS, dayfirst=True)
-
-    surgery_process(df)
+def names_and_age_process(df):
     # Form Name
     df[FORM_NAME] = df[FORM_NAME].astype('category')
     df[FORM_NAME] = pd.factorize(df[FORM_NAME])[0] + 1
@@ -56,6 +54,13 @@ def load_data(file_path):
     df[USER_NAME] = (df[USER_NAME].str.split("_").str[0]).astype(int)
     # Age
     df[AGE] = df[AGE].astype(int)
+
+
+def load_data(file_path):
+    df = pd.read_csv(file_path, dtype='unicode', parse_dates=DATES_COLS, dayfirst=True)
+    df['today'] = pd.to_datetime("today")
+    surgery_process(df)
+
     # Basic Stage
     df[BASIC_STAGE] = df[BASIC_STAGE].replace([CLINICAL_STAGE], 1)
     df[BASIC_STAGE] = df[BASIC_STAGE].replace([PATHOLOGICAL_STAGE], 2)
@@ -63,9 +68,11 @@ def load_data(file_path):
     df[BASIC_STAGE] = df[BASIC_STAGE].replace([NULL], 0)
     # Diagnosis date
     df[DIAGNOSIS_DATE] = pd.to_datetime(df[DIAGNOSIS_DATE])
-
-    for marker in TUMOR_MARKERS_DIAGNOSIS: # er & pr
+    df['Difference'] = (df['today'] - df[DIAGNOSIS_DATE]).dt.days
+    # Markers (er & pr)
+    for marker in TUMOR_MARKERS_DIAGNOSIS:
         df[marker] = df[marker].astype(str).apply(er_pr_preprocess)
+
 
     return df
 
