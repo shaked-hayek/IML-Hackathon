@@ -8,6 +8,7 @@ import plotly.io as pio
 DATA_PATH = "Mission 2 - Breast Cancer"
 TRAIN_FILE = "train.feats.csv"
 LABELS_FILE_1 = "train.labels.0.csv"
+LABELS_FILE_2 = "train.labels.1.csv"
 
 DATES_COLS = ["אבחנה-Diagnosis date", "אבחנה-Surgery date1",
               "אבחנה-Surgery date2", "אבחנה-Surgery date3"]
@@ -31,10 +32,11 @@ POS_NODES = "אבחנה-Positive nodes"
 EXAM_NODES = "אבחנה-Nodes exam"
 
 DROP = [" Hospital", "אבחנה-Her2", "אבחנה-Histopatological degree"
-        , "אבחנה-Ivi -Lymphovascular invasion", "אבחנה-KI67 protein", "אבחנה-Lymphatic penetration",
+    , "אבחנה-Ivi -Lymphovascular invasion", "אבחנה-KI67 protein", "אבחנה-Lymphatic penetration",
         "אבחנה-M -metastases mark (TNM)", "אבחנה-Margin Type", "אבחנה-N -lymph nodes mark (TNM)", "אבחנה-Surgery name1",
         "אבחנה-Surgery name2", "אבחנה-Surgery name3",
-        "אבחנה-T -Tumor mark (TNM)", "אבחנה-Tumor depth", "אבחנה-Tumor width", "surgery before or after-Actual activity",
+        "אבחנה-T -Tumor mark (TNM)", "אבחנה-Tumor depth", "אבחנה-Tumor width",
+        "surgery before or after-Actual activity",
         "surgery before or after-Activity date"
         ]
 
@@ -53,7 +55,6 @@ SIDE_DICT = {"ימין": 1, "שמאל": 1, "דו צדדי": 2}
 TUMOR_MARKERS_DIAGNOSIS = ["אבחנה-er", "אבחנה-pr"]
 
 
-
 def surgery_process(df):
     # Surgery sum
     df[SUR_SUM_COL].replace({None: "0"}, inplace=True)
@@ -66,22 +67,22 @@ def surgery_process(df):
     df.drop(columns=SUR_DATES_COL, inplace=True)
 
 
-
 def er_pr_preprocess(cell_data):
-    """
-    # TODO document
-    """
     cell_data = cell_data.lower()
-    if cell_data[:2] == "<1": # "<1" or "<1%"
+    if len(cell_data) == 0:
+        return 0
+    if len(cell_data) == 1:
+        return # TODO cange
+    elif cell_data[:2] == "<1": # "<1" or "<1%"
         return 0.005
     if cell_data[:2] == ">7": # ">75%"
         return 0.8
     elif cell_data[:2] == "po":
         return # TODO change
         # check if weak
-            # if so check if there is percenatage
+            # if so, check if there is percenatage
 
-    #### TODO CONTINUE!!!!
+    #### TODO continue if we have time so we can use the er-diagnosis & pr-diagnosis instead of dropping them
 
 
 def names_and_age_process(df):
@@ -116,35 +117,63 @@ def diagnoses_process(df):
     df[DIAGNOSIS] = df[DIAGNOSIS].astype('category')
     df[DIAGNOSIS] = pd.factorize(df[DIAGNOSIS])[0] + 1
 
-    # Markers (er & pr)
-    for marker in TUMOR_MARKERS_DIAGNOSIS:
-        df[marker] = df[marker].astype(str).apply(er_pr_preprocess)
+    # # Markers (er & pr) - can be returned from comment only if we had time
+    #                   #   finishing the er_pr_preprocess function
+    # for marker in TUMOR_MARKERS_DIAGNOSIS:
+    #     df[marker] = df[marker].astype(str).apply(er_pr_preprocess)
 
 
-def load_data(file_path, labels_path=None, is_train=False): # TODO use the is_train flag to train only on rellevant data
+def nodes_process(df):
+    # Ratio between the amount of vertices tested versus the amount of positives
+    df[EXAM_NODES].replace({None: np.nan}, inplace=True)
+    df[POS_NODES].replace({None: np.nan}, inplace=True)
+    df[EXAM_NODES] = df[EXAM_NODES].astype(float)
+    df[POS_NODES] = df[POS_NODES].astype(float)
+    df[EXAM_NODES] = df[POS_NODES] / df[EXAM_NODES]
+
+
+def load_data_question_1(file_path, labels_path=None,
+                         is_train=False):  # TODO use the is_train flag to train only on rellevant data
     df = pd.read_csv(file_path, dtype='unicode')
+    labels = None
     if (labels_path):
         labels = pd.read_csv(labels_path, dtype='unicode')
-        df[LABELS_COL] = labels
+    df[LABELS_COL] = labels
     df.drop(columns=DROP, inplace=True)
     df[TODAY] = pd.to_datetime(TODAY)
     surgery_process(df)
     names_and_age_process(df)
     basic_stage_process(df)
     diagnoses_process(df)
-    # Ratio between the amount of vertices tested versus the amount of positives
-    df[EXAM_NODES].replace({None: "0"}, inplace=True)
-    df[POS_NODES].replace({None: "0"}, inplace=True)
-    df[EXAM_NODES] = df[EXAM_NODES].astype(float)
-    df[POS_NODES] = df[POS_NODES].astype(float)
-    df1 = df
-    df1[EXAM_NODES] = df1[POS_NODES] / df1[EXAM_NODES]
+    nodes_process(df)
+    labels = df[LABELS_COL]
+    df.drop(columns=LABELS_COL, inplace=True)
+    return df, labels
 
-    return (df,df)  # TODO if is_train then return also labels!!!!
+
+def load_data_question_2(file_path, labels_path=None,
+                         is_train=False):  # TODO use the is_train flag to train only on rellevant data
+    df = pd.read_csv(file_path, dtype='unicode')
+    labels = None
+    if (labels_path):
+        labels = pd.read_csv(labels_path, dtype='unicode')
+    df[LABELS_COL] = labels
+    df.drop(columns=DROP, inplace=True)
+    df[TODAY] = pd.to_datetime(TODAY)
+    surgery_process(df)
+    names_and_age_process(df)
+    basic_stage_process(df)
+    diagnoses_process(df)
+    # drop unnecessary columns for question 2
+    df.drop(columns=[EXAM_NODES, POS_NODES])
+    labels = df[LABELS_COL]
+    df.drop(columns=LABELS_COL, inplace=True)
+    return df, labels
 
 
 def main():
-    data_1, data_2 = load_data(path.join(DATA_PATH, TRAIN_FILE), path.join(DATA_PATH, LABELS_FILE_1))
+    data1, labels1 = load_data_question_1(path.join(DATA_PATH, TRAIN_FILE), path.join(DATA_PATH, LABELS_FILE_1))
+    data2, labels2 = load_data_question_2(path.join(DATA_PATH, TRAIN_FILE), path.join(DATA_PATH, LABELS_FILE_2))
 
 
 if __name__ == "__main__":
