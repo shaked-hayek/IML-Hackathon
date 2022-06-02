@@ -20,7 +20,7 @@ def estimate_location(train_X, train_y, test_X):
     ada = AdaBoostClassifier()
     ada.fit(train_X, train_y)
     pred = ada.predict(test_X)
-    return pd.DataFrame(pred)
+    return pred
 
 
 def create_output(df):

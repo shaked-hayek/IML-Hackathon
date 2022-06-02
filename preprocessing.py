@@ -30,6 +30,7 @@ DIAGNOSIS = "אבחנה-Histological diagnosis"
 LABELS_COL = "labels"
 POS_NODES = "אבחנה-Positive nodes"
 EXAM_NODES = "אבחנה-Nodes exam"
+ID_COL = "id-hushed_internalpatientid"
 
 DROP = [" Hospital", "אבחנה-Her2", "אבחנה-Histopatological degree"
     , "אבחנה-Ivi -Lymphovascular invasion", "אבחנה-KI67 protein", "אבחנה-Lymphatic penetration",
@@ -37,17 +38,16 @@ DROP = [" Hospital", "אבחנה-Her2", "אבחנה-Histopatological degree"
         "אבחנה-Surgery name2", "אבחנה-Surgery name3",
         "אבחנה-T -Tumor mark (TNM)", "אבחנה-Tumor depth", "אבחנה-Tumor width",
         "surgery before or after-Actual activity",
-        "surgery before or after-Activity date"
+        "surgery before or after-Activity date", "אבחנה-er", "אבחנה-pr"
         ]
 
-NUM_OF_DAYS_SINCE_DIAGNOSIS = "Number of days"
 TODAY = "today"
 
 STAGE = "אבחנה-Stage"
-STAGE_DICT = {"stage0": 0, "stage1": 1, "LA": 1, "stage1a": 1,
-              "stage1b": 2, "stage2a": 3, "stage2b": 4, "stage 3a": 5,
-              "stage 3b": 6, "stage 3c": 7, "stage 4": 8,
-              "Not yet Established": 0, None: 0}
+STAGE_DICT = {"Stage0": 0, "Stage0is": 0, "Stage0a": 0, "Stage1": 1, "LA": 1, "Stage1a": 1,
+              "Stage1b": 2, "Stage1c": 3, "Stage2": 4, "Stage2a": 4, "Stage2b": 5, "Stage3": 6, "Stage3a": 6,
+              "Stage 3a": 6, "Stage 3b": 7, "Stage3b": 7, "Stage 3c": 8, "Stage3c": 8,
+              "Stage 4": 9, "Stage4": 9, "Not yet Established": 0, None: 0}
 
 SIDE = "אבחנה-Side"
 SIDE_DICT = {"ימין": 1, "שמאל": 1, "דו צדדי": 2}
@@ -72,15 +72,15 @@ def er_pr_preprocess(cell_data):
     if len(cell_data) == 0:
         return 0
     if len(cell_data) == 1:
-        return # TODO cange
-    elif cell_data[:2] == "<1": # "<1" or "<1%"
+        return  # TODO cange
+    elif cell_data[:2] == "<1":  # "<1" or "<1%"
         return 0.005
-    if cell_data[:2] == ">7": # ">75%"
+    if cell_data[:2] == ">7":  # ">75%"
         return 0.8
     elif cell_data[:2] == "po":
-        return # TODO change
+        return  # TODO change
         # check if weak
-            # if so, check if there is percenatage
+        # if so, check if there is percenatage
 
     #### TODO continue if we have time so we can use the er-diagnosis & pr-diagnosis instead of dropping them
 
@@ -113,6 +113,7 @@ def diagnoses_process(df):
     df[DIAGNOSIS_DATE] = pd.to_datetime(df[DIAGNOSIS_DATE])
     df[NUM_OF_DAYS_SINCE_DIAGNOSIS] = (df[TODAY] - df[DIAGNOSIS_DATE]).dt.days
     df.drop(columns=DIAGNOSIS_DATE, inplace=True)
+    df.drop(columns=TODAY, inplace=True)
     # diagnosis
     df[DIAGNOSIS] = df[DIAGNOSIS].astype('category')
     df[DIAGNOSIS] = pd.factorize(df[DIAGNOSIS])[0] + 1
@@ -132,6 +133,23 @@ def nodes_process(df):
     df[EXAM_NODES] = df[POS_NODES] / df[EXAM_NODES]
 
 
+# in classification we can use the ID but in regression the ID will add noise
+def id_process(df, is_question_1):
+    if is_question_1:
+        df[ID_COL] = df[ID_COL].astype('category')
+        df[ID_COL] = pd.factorize(df[ID_COL])[0] + 1
+    else:
+        df.drop(columns=ID_COL, inplace=True)
+
+
+def nan_process(df):
+    df[POS_NODES].fillna(0, inplace=True)
+    df[EXAM_NODES].fillna(0, inplace=True)
+    df[SIDE].fillna(0, inplace=True)
+    df[SUR_SINCE_LAST].fillna(0, inplace=True)
+    df.replace([np.inf, -np.inf], 0, inplace=True)
+
+
 def load_data_question_1(file_path, labels_path=None,
                          is_train=False):  # TODO use the is_train flag to train only on rellevant data
     df = pd.read_csv(file_path, dtype='unicode')
@@ -146,6 +164,8 @@ def load_data_question_1(file_path, labels_path=None,
     basic_stage_process(df)
     diagnoses_process(df)
     nodes_process(df)
+    id_process(df, True)
+    nan_process(df)
     labels = pd.DataFrame()
     labels[LABELS_COL] = df[LABELS_COL]
     df.drop(columns=LABELS_COL, inplace=True)
@@ -165,6 +185,8 @@ def load_data_question_2(file_path, labels_path=None,
     names_and_age_process(df)
     basic_stage_process(df)
     diagnoses_process(df)
+    id_process(df, False)
+    nan_process(df)
     # drop unnecessary columns for question 2
     df.drop(columns=[EXAM_NODES, POS_NODES])
     labels = df[LABELS_COL]
