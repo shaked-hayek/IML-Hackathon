@@ -30,11 +30,10 @@ def surgery_process(df):
     df[SUR_SUM_COL].replace({None: "0"}, inplace=True)
 
     # Dates
-    # for col in SUR_DATES_COL:
-    #     df[col] = pd.to_datetime(df[col])
-    #     #df[col].replace({None: "0"}, inplace=True)
-    # df[SUR_SINCE_LAST] = df[SUR_DATES_COL].max(axis=1)
-    # print(df[SUR_SINCE_LAST])
+    for col in SUR_DATES_COL:
+        df[col] = df[TODAY] - pd.to_datetime(df[col])
+    df[SUR_SINCE_LAST] = df[SUR_DATES_COL].max(axis=1)
+    df.drop(columns=SUR_DATES_COL, inplace=True)
 
 
 def load_data(file_path):
