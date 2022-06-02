@@ -1,7 +1,7 @@
 from os import path
 import numpy as np
 import pandas as pd
-#import sklearn
+from sklearn.ensemble import AdaBoostClassifier
 
 from preprocessing import load_data_question_1, DATA_PATH, TRAIN_FILE, LABELS_FILE_1, LABELS_COL
 from utils import split_train_test
@@ -16,9 +16,11 @@ LABEL_OPTIONS = ['BON - Bones', 'LYM - Lymph nodes', 'HEP - Hepatic',
                  'PER - Peritoneum', 'ADR - Adrenals']
 
 
-def estimate_location(location, train_X, train_y, test_X):
-    # TODO : classifier
-    return pd.DataFrame(train_y) # TEMP!
+def estimate_location(train_X, train_y, test_X):
+    ada = AdaBoostClassifier()
+    ada.fit(train_X, train_y)
+    pred = ada.predict(test_X)
+    return pd.DataFrame(pred)
 
 
 def create_output(df):
@@ -41,8 +43,7 @@ def main():
 
     results_df = pd.DataFrame()
     for loc in LABEL_OPTIONS:
-        results_df[loc] = estimate_location(
-            loc, train_X, train_y_as_dummies[loc], test_X)
+        results_df[loc] = estimate_location(train_X, train_y_as_dummies[loc], test_X)
     pred_output = create_output(results_df)
 
     # Write results to CSV
