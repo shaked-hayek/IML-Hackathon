@@ -1,7 +1,6 @@
 from os import path
 import numpy as np
 import pandas as pd
-import sklearn
 from sklearn.ensemble import RandomForestClassifier
 
 from preprocessing import load_data_question_1, DATA_PATH, TRAIN_FILE, \
