@@ -2,7 +2,6 @@ from os import path
 import numpy as np
 import pandas as pd
 import sklearn
-from sklearn import linear_model
 from sklearn.ensemble import RandomForestClassifier
 
 from preprocessing import load_data_question_1, DATA_PATH, TRAIN_FILE, \
@@ -20,7 +19,6 @@ LABEL_OPTIONS = ['BON - Bones', 'LYM - Lymph nodes', 'HEP - Hepatic',
 
 
 def estimate_location(train_X, train_y, test_X):
-    # ada = sklearn.tree.DecisionTreeClassifier()
     ada = RandomForestClassifier(n_estimators=100, random_state=1)
     ada.fit(train_X, train_y)
     pred = ada.predict(test_X)
