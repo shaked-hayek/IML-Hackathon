@@ -1,7 +1,9 @@
 from os import path
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import AdaBoostClassifier
+import sklearn
+from sklearn import linear_model
+from sklearn.ensemble import RandomForestClassifier
 
 from preprocessing import load_data_question_1, DATA_PATH, TRAIN_FILE, \
     LABELS_FILE_1, LABELS_COL, TEST_FILE
@@ -18,7 +20,8 @@ LABEL_OPTIONS = ['BON - Bones', 'LYM - Lymph nodes', 'HEP - Hepatic',
 
 
 def estimate_location(train_X, train_y, test_X):
-    ada = AdaBoostClassifier()
+    # ada = sklearn.tree.DecisionTreeClassifier()
+    ada = RandomForestClassifier(n_estimators=100, random_state=1)
     ada.fit(train_X, train_y)
     pred = ada.predict(test_X)
     return pred
@@ -41,7 +44,7 @@ def labels_to_categorical(train_y):
 
 def main():
     X, y = load_data_question_1(path.join(DATA_PATH, TRAIN_FILE), path.join(DATA_PATH, LABELS_FILE_1))
-    train_X, train_y, _, test_y = split_train_test(X, y)
+    train_X, train_y, test_X, test_y = split_train_test(X, y)
     train_y_as_dummies = labels_to_categorical(train_y)
     test_X, _ = load_data_question_1(path.join(DATA_PATH, TEST_FILE))
 
