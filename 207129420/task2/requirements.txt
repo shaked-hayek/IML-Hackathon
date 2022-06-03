@@ -1,0 +1,9 @@
+sklearn
+numpy
+pandas
+tqdm
+docopt
+os
+pip
+typing
+scikit-learn
