@@ -2,8 +2,6 @@ from os import path
 
 import numpy as np
 import pandas as pd
-import plotly.express as px
-import plotly.io as pio
 
 DATA_PATH = "Mission 2 - Breast Cancer"
 TRAIN_FILE = "train.feats.csv"
