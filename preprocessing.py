@@ -71,16 +71,14 @@ def er_pr_preprocess(cell_data):
     if len(cell_data) == 0:
         return 0
     if len(cell_data) == 1:
-        return  # change if we have time
+        return
     elif cell_data[:2] == "<1":  # "<1" or "<1%"
         return 0.005
     if cell_data[:2] == ">7":  # ">75%"
         return 0.8
     elif cell_data[:2] == "po":
-        return  # change if we have time
-        # check if "weak"
-             # if so, check if there is percenatage
-    #### continue if we have time so we can use the er-diagnosis & pr-diagnosis instead of dropping them
+        return
+
 
 
 
