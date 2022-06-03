@@ -73,17 +73,17 @@ def er_pr_preprocess(cell_data):
     if len(cell_data) == 0:
         return 0
     if len(cell_data) == 1:
-        return  # TODO cange
+        return  # change if we have time
     elif cell_data[:2] == "<1":  # "<1" or "<1%"
         return 0.005
     if cell_data[:2] == ">7":  # ">75%"
         return 0.8
     elif cell_data[:2] == "po":
-        return  # TODO change
-        # check if weak
-        # if so, check if there is percenatage
+        return  # change if we have time
+        # check if "weak"
+             # if so, check if there is percenatage
+    #### continue if we have time so we can use the er-diagnosis & pr-diagnosis instead of dropping them
 
-    #### TODO continue if we have time so we can use the er-diagnosis & pr-diagnosis instead of dropping them
 
 
 def names_and_age_process(df):
@@ -152,11 +152,10 @@ def nan_process(df):
     df.replace([np.inf, -np.inf], 0, inplace=True)
 
 
-def load_data_question_1(file_path, labels_path=None,
-                         is_train=False):  # TODO use the is_train flag to train only on rellevant data
+def load_data_question_1(file_path, labels_path=None):
     df = pd.read_csv(file_path, dtype='unicode')
     labels = None
-    if (labels_path):
+    if labels_path:
         labels = pd.read_csv(labels_path, dtype='unicode')
     df[LABELS_COL] = labels
     df.drop(columns=DROP, inplace=True)
@@ -174,11 +173,10 @@ def load_data_question_1(file_path, labels_path=None,
     return df, labels
 
 
-def load_data_question_2(file_path, labels_path=None,
-                         is_train=False):  # TODO use the is_train flag to train only on rellevant data
+def load_data_question_2(file_path, labels_path=None):
     df = pd.read_csv(file_path, dtype='unicode')
     labels = None
-    if (labels_path):
+    if labels_path:
         labels = pd.read_csv(labels_path, dtype='unicode')
     df[LABELS_COL] = labels
     df.drop(columns=DROP, inplace=True)
