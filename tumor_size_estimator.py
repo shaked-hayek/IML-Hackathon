@@ -1,8 +1,7 @@
 from os import path
-import numpy as np
+
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import Ridge, Lasso
+from sklearn.linear_model import Ridge
 
 from utils import split_train_test
 
