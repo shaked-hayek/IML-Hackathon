@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import AdaBoostClassifier
 
-from preprocessing import load_data_question_1, DATA_PATH, TRAIN_FILE, LABELS_FILE_1, LABELS_COL
+from preprocessing import load_data_question_1, DATA_PATH, TRAIN_FILE, \
+    LABELS_FILE_1, LABELS_COL, TEST_FILE
 from utils import split_train_test
 
 GOLD_FILE = "gold.csv"
@@ -40,8 +41,9 @@ def labels_to_categorical(train_y):
 
 def main():
     X, y = load_data_question_1(path.join(DATA_PATH, TRAIN_FILE), path.join(DATA_PATH, LABELS_FILE_1))
-    train_X, train_y, test_X, test_y = split_train_test(X, y)
+    train_X, train_y, _, test_y = split_train_test(X, y)
     train_y_as_dummies = labels_to_categorical(train_y)
+    test_X, _ = load_data_question_1(path.join(DATA_PATH, TEST_FILE))
 
     results_df = pd.DataFrame()
     for loc in LABEL_OPTIONS:
@@ -50,7 +52,7 @@ def main():
 
     # Write results to CSV
     pred_output.to_csv(PRED_FILE, index=False)
-    test_y.to_csv(GOLD_FILE, index=False)
+    # test_y.to_csv(GOLD_FILE, index=False)
 
     # To test run:
     # python "Mission 2 - Breast Cancer/evaluate_part_0.py" --gold gold.csv --pred pred.csv
